@@ -5,28 +5,22 @@ import (
 	"net/http"
 )
 
+// TODO: 같은 서버 안의 다른 프로세스로 떠있는 DB 연결하고 헬스체크
+
+func healthCheckOnUrl(url string) bool {
+	resp, _ := http.Get(url)
+	return resp.StatusCode == 200
+}
+
 func healthChecker(c *gin.Context) {
 	/***
 	헬스 체크 기획
 
 	헬스 체크리스트(url) 받아서 그 주소들 헬스체크 결과 response 로 전달?
 	***/
-	naverResp, _ := http.Get("https://naver.com/")
-	hwahaeResp, _ := http.Get("https://www.hwahae.co.kr/")
-	var naverisOk bool
-	var hwahaeisOk bool
-
-	if naverResp.StatusCode == 200 {
-		naverisOk = true
-	}
-
-	if hwahaeResp.StatusCode == 200 {
-		hwahaeisOk = true
-	}
-
 	c.JSON(http.StatusOK, gin.H{
-		"naver_status":  naverisOk,
-		"hwahae_status": hwahaeisOk,
+		"naver_status":  healthCheckOnUrl("https://naver.com"),
+		"hwahae_status": healthCheckOnUrl("https://www.hwahae.co.kr"),
 	})
 }
 
