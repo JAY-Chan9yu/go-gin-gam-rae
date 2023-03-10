@@ -1,11 +1,33 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"net/http"
 )
 
 // TODO: 같은 서버 안의 다른 프로세스로 떠있는 DB 연결하고 헬스체크
+
+func healthCheckOnDB() bool {
+	appConfig, err := godotenv.Read()
+
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s:%s)/%s",
+		appConfig["MYSQL_USER"],
+		appConfig["MYSQL_PASSWORD"],
+		appConfig["MYSQL_PROTOCOL"],
+		appConfig["MYSQL_HOST"],
+		appConfig["MYSQL_PORT"],
+		appConfig["MYSQL_DBNAME"]))
+	if err != nil {
+		panic(err)
+	}
+
+	defer db.Close()
+
+	return err != nil
+}
 
 func healthCheckOnUrl(url string) bool {
 	resp, _ := http.Get(url)
@@ -21,6 +43,7 @@ func healthChecker(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"naver_status":  healthCheckOnUrl("https://naver.com"),
 		"hwahae_status": healthCheckOnUrl("https://www.hwahae.co.kr"),
+		"db_status":     healthCheckOnDB(),
 	})
 }
 
