@@ -4,29 +4,46 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	"log"
 	"net/http"
 )
 
-// TODO: 같은 서버 안의 다른 프로세스로 떠있는 DB 연결하고 헬스체크
+type Config struct {
+	pk            int
+	googleVersion string
+	iosVersion    string
+}
 
 func healthCheckOnDB() bool {
 	appConfig, err := godotenv.Read()
 
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@%s(%s:%s)/%s",
-		appConfig["MYSQL_USER"],
-		appConfig["MYSQL_PASSWORD"],
-		appConfig["MYSQL_PROTOCOL"],
-		appConfig["MYSQL_HOST"],
-		appConfig["MYSQL_PORT"],
-		appConfig["MYSQL_DBNAME"]))
+	// 이거 찾아보기
+	db, err := sql.Open(
+		"mysql",
+		fmt.Sprintf("%s:%s@%s(%s:%s)/%s",
+			appConfig["MYSQL_USER"],
+			appConfig["MYSQL_PASSWORD"],
+			appConfig["MYSQL_PROTOCOL"],
+			appConfig["MYSQL_HOST"],
+			appConfig["MYSQL_PORT"],
+			appConfig["MYSQL_DBNAME"],
+		),
+	)
 	if err != nil {
 		panic(err)
 	}
 
 	defer db.Close()
 
-	return err != nil
+	var config Config
+	err = db.QueryRow("SELECT pk, googleVersion, iosVersion FROM config WHERE pk = 1").Scan(&config.pk, &config.googleVersion, &config.iosVersion)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return err == nil
 }
 
 func healthCheckOnUrl(url string) bool {
