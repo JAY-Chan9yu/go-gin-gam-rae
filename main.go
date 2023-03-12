@@ -17,7 +17,7 @@ type Config struct {
 }
 
 func healthCheckOnDB() bool {
-	appConfig, err := godotenv.Read()
+	appConfig, _ := godotenv.Read()
 
 	// 이거 찾아보기
 	db, err := sql.Open(
@@ -31,6 +31,7 @@ func healthCheckOnDB() bool {
 			appConfig["MYSQL_DBNAME"],
 		),
 	)
+
 	if err != nil {
 		panic(err)
 	}
@@ -77,5 +78,8 @@ func main() {
 		v1.GET("/health-check", healthChecker)
 	}
 
-	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	err := router.Run("localhost:8080") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
