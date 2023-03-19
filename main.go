@@ -1,13 +1,20 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	"log"
+	"net"
 	"net/http"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+
+	pb "github.com/JAY-Chan9yu/go-gin-gam-rae/proto"
 )
 
 type Config struct {
@@ -65,21 +72,27 @@ func healthChecker(c *gin.Context) {
 	})
 }
 
-func main() {
-	router := gin.Default()
+type server struct{ pb.UnimplementedGreeterServer }
 
-	v1 := router.Group("v1")
-	{
-		v1.GET("/ping", func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"message": "pong",
-			})
-		})
-		v1.GET("/health-check", healthChecker)
+// SayHello implements helloworld.GreeterServer
+func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
+	log.Printf("Received: %v", in.GetName())
+	return &pb.HelloReply{Message: "Hello " + in.GetName()}, nil
+}
+
+func main() {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 9000))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
 	}
 
-	err := router.Run("localhost:8080") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
-	if err != nil {
-		log.Fatal(err)
+	s := grpc.NewServer()
+	pb.RegisterGreeterServer(s, &server{})
+
+	reflection.Register(s)
+
+	log.Printf("server listening at %v", lis.Addr())
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %s", err)
 	}
 }

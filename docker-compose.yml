@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  go-grpc-server:
+    container_name: "go-grpc-server"
+    image: golang120-go-jin-gam-rae:1.0.0
+    build: .
+    ports:
+      - "9000:9000"
+    depends_on:
+      - protoc
+    volumes:
+    - .:/app
+#    command: go run main.go
+    command: air
+
+  protoc:
+    build: .
+    command: [ "sh", "-c", "protoc --go_out=. --go-grpc_out=. proto/service.proto" ]
+    volumes:
+      - .:/app
