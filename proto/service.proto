@@ -26,6 +26,7 @@ service Greeter {
   };
   // Sends another greeting
   rpc SayHelloAgain (HelloRequest) returns (HelloReply);
+  rpc ListCosmetics (ListCosmeticsRequest) returns (ListCosmeticsResponse);
 }
 
 // The request message containing the user's name.
@@ -36,6 +37,20 @@ message HelloRequest {
 // The response message containing the greetings
 message HelloReply {
   string message = 1;
+}
+
+message ListCosmeticsRequest {
+}
+
+message Cosmetics {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  int32 price = 4;
+}
+
+message ListCosmeticsResponse {
+  repeated Cosmetics data = 1;
 }
 
 message deleteCosmeticRequest {

@@ -79,16 +79,8 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	return &pb.HelloReply{Message: "Hello " + in.GetName()}, nil
 }
 
-type Cosmetic struct {
-	id          string
-	name        string
-	description string
-	price       int
-}
-
 func (s *server) DeleteCosmetic(ctx context.Context, in *pb.DeleteCosmeticRequest) (*pb.DeleteCosmeticReply, error) {
 	appConfig, _ := godotenv.Read()
-
 	db, err := sql.Open(
 		"mysql",
 		fmt.Sprintf("%s:%s@%s(%s:%s)/%s",
@@ -116,6 +108,65 @@ func (s *server) DeleteCosmetic(ctx context.Context, in *pb.DeleteCosmeticReques
 	fmt.Println(nRow)
 	t := strconv.Itoa(int(nRow))
 	return &pb.DeleteCosmeticReply{Message: "delete count: " + t}, nil
+}
+
+func (s *server) ListCosmetics(ctx context.Context, in *pb.ListCosmeticsRequest) (*pb.ListCosmeticsResponse, error) {
+	appConfig, _ := godotenv.Read()
+	// 이거 찾아보기
+	db, err := sql.Open(
+		"mysql",
+		fmt.Sprintf("%s:%s@%s(%s:%s)/%s",
+			appConfig["MYSQL_USER"],
+			appConfig["MYSQL_PASSWORD"],
+			appConfig["MYSQL_PROTOCOL"],
+			appConfig["MYSQL_HOST"],
+			appConfig["MYSQL_PORT"],
+			appConfig["MYSQL_DBNAME"],
+		),
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	query := "SELECT COUNT(*) FROM cosmetic"
+	rows, err := db.Query(query)
+	if err != nil {
+		panic(err)
+	}
+	var cnt int32
+	fmt.Println(rows)
+	for rows.Next() {
+		if err := rows.Scan(&cnt); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	query = "SELECT * FROM cosmetic"
+	rows, err = db.Query(query)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(rows)
+	cosmetics := make([]*pb.Cosmetics, cnt)
+
+	i := 0
+	for rows.Next() {
+		var (
+			id          string
+			name        string
+			description string
+			price       int32
+		)
+		if err := rows.Scan(&id, &name, &description, &price); err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("id %d name is %s\n", id, name)
+		cosmetics[i] = &pb.Cosmetics{Id: id, Name: name, Description: description, Price: price}
+		i += 1
+	}
+
+	return &pb.ListCosmeticsResponse{Data: cosmetics}, nil
 }
 
 func main() {

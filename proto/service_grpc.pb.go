@@ -22,6 +22,7 @@ const (
 	Greeter_SayHello_FullMethodName       = "/helloworld.Greeter/SayHello"
 	Greeter_DeleteCosmetic_FullMethodName = "/helloworld.Greeter/deleteCosmetic"
 	Greeter_SayHelloAgain_FullMethodName  = "/helloworld.Greeter/SayHelloAgain"
+	Greeter_ListCosmetics_FullMethodName  = "/helloworld.Greeter/ListCosmetics"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -33,6 +34,7 @@ type GreeterClient interface {
 	DeleteCosmetic(ctx context.Context, in *DeleteCosmeticRequest, opts ...grpc.CallOption) (*DeleteCosmeticReply, error)
 	// Sends another greeting
 	SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+	ListCosmetics(ctx context.Context, in *ListCosmeticsRequest, opts ...grpc.CallOption) (*ListCosmeticsResponse, error)
 }
 
 type greeterClient struct {
@@ -70,6 +72,15 @@ func (c *greeterClient) SayHelloAgain(ctx context.Context, in *HelloRequest, opt
 	return out, nil
 }
 
+func (c *greeterClient) ListCosmetics(ctx context.Context, in *ListCosmeticsRequest, opts ...grpc.CallOption) (*ListCosmeticsResponse, error) {
+	out := new(ListCosmeticsResponse)
+	err := c.cc.Invoke(ctx, Greeter_ListCosmetics_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility
@@ -79,6 +90,7 @@ type GreeterServer interface {
 	DeleteCosmetic(context.Context, *DeleteCosmeticRequest) (*DeleteCosmeticReply, error)
 	// Sends another greeting
 	SayHelloAgain(context.Context, *HelloRequest) (*HelloReply, error)
+	ListCosmetics(context.Context, *ListCosmeticsRequest) (*ListCosmeticsResponse, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -94,6 +106,9 @@ func (UnimplementedGreeterServer) DeleteCosmetic(context.Context, *DeleteCosmeti
 }
 func (UnimplementedGreeterServer) SayHelloAgain(context.Context, *HelloRequest) (*HelloReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SayHelloAgain not implemented")
+}
+func (UnimplementedGreeterServer) ListCosmetics(context.Context, *ListCosmeticsRequest) (*ListCosmeticsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListCosmetics not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 
@@ -162,6 +177,24 @@ func _Greeter_SayHelloAgain_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_ListCosmetics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCosmeticsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).ListCosmetics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_ListCosmetics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).ListCosmetics(ctx, req.(*ListCosmeticsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -180,6 +213,10 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SayHelloAgain",
 			Handler:    _Greeter_SayHelloAgain_Handler,
+		},
+		{
+			MethodName: "ListCosmetics",
+			Handler:    _Greeter_ListCosmetics_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
