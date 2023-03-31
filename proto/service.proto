@@ -18,6 +18,12 @@ service Greeter {
       body: "*"
     };
   };
+  rpc deleteCosmetic (deleteCosmeticRequest) returns (deleteCosmeticReply) {
+    option (google.api.http) = {
+      delete: "/cosmetic"
+      body: "*"
+    };
+  };
   // Sends another greeting
   rpc SayHelloAgain (HelloRequest) returns (HelloReply);
   rpc ListCosmetics (ListCosmeticsRequest) returns (ListCosmeticsResponse);
@@ -45,4 +51,12 @@ message Cosmetics {
 
 message ListCosmeticsResponse {
   repeated Cosmetics data = 1;
+}
+
+message deleteCosmeticRequest {
+  string uuid = 1;
+}
+
+message deleteCosmeticReply {
+  string message = 1;
 }
