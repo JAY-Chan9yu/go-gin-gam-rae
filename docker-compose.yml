@@ -33,3 +33,14 @@ services:
     command: air
     depends_on:
       - mysql
+
+  python-api-server:
+    build: ./grpc-python
+    container_name: grpc-fastapi
+    tty: true
+    stdin_open: true
+    ports:
+      - "8001:80"
+    depends_on:
+      - mysql
+      - go-grpc-server

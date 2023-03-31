@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+option go_package = "/proto;cosmetic";
+//option java_multiple_files = true;
+//option java_package = "io.grpc.examples.cosmetic";
+//option java_outer_classname = "CosmeticProto";
+
+package cosmetic;
+
+import "proto/google/api/annotations.proto";
+
+// The greeting service definition.
+service CosmeticService {
+  // Sends a greeting
+  rpc deleteCosmetic (deleteCosmeticRequest) returns (deleteCosmeticReply) {
+    option (google.api.http) = {
+      delete: "/cosmetic"
+      body: "*"
+    };
+  };
+  rpc updateCosmetic (updateCosmeticRequest) returns (updateCosmeticReply) {
+    option (google.api.http) = {
+      put: "/cosmetic"
+      body: "*"
+    };
+  };
+  rpc createCosmetic (createCosmeticRequest) returns (createCosmeticResponse) {
+    option (google.api.http) = {
+      post: "/cosmetic"
+      body: "*"
+    };
+  };
+  // Sends another greeting
+  rpc ListCosmetics (ListCosmeticsRequest) returns (ListCosmeticsResponse){
+    option (google.api.http) = {
+      get: "/cosmetic"
+    };
+  };
+}
+
+message ListCosmeticsRequest {
+}
+
+message Cosmetics {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  int32 price = 4;
+}
+
+message ListCosmeticsResponse {
+  repeated Cosmetics data = 1;
+}
+
+message createCosmeticRequest {
+  string name = 1;
+  string description = 2;
+  int32 price = 3;
+}
+
+message createCosmeticResponse {
+  string message = 1;
+}
+
+message deleteCosmeticRequest {
+  string uuid = 1;
+}
+
+message deleteCosmeticReply {
+  string message = 1;
+}
+
+message updateCosmeticRequest {
+  string uuid = 1;
+  string name = 2;
+  string description = 3;
+  int32 price = 4;
+}
+
+message updateCosmeticReply {
+  string uuid = 1;
+  string name = 2;
+  string description = 3;
+  int32 price = 4;
+}
