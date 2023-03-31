@@ -110,6 +110,37 @@ func (s *server) DeleteCosmetic(ctx context.Context, in *pb.DeleteCosmeticReques
 	return &pb.DeleteCosmeticReply{Message: "delete count: " + t}, nil
 }
 
+func (s *server) CreateCosmetic(ctx context.Context, in *pb.CreateCosmeticRequest) (*pb.CreateCosmeticResponse, error) {
+	appConfig, _ := godotenv.Read()
+	db, err := sql.Open(
+		"mysql",
+		fmt.Sprintf("%s:%s@%s(%s:%s)/%s",
+			appConfig["MYSQL_USER"],
+			appConfig["MYSQL_PASSWORD"],
+			appConfig["MYSQL_PROTOCOL"],
+			appConfig["MYSQL_HOST"],
+			appConfig["MYSQL_PORT"],
+			appConfig["MYSQL_DBNAME"],
+		),
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer db.Close()
+
+	result, err := db.Exec("INSERT INTO Cosmetic(name, description,price) VALUES(?, ?, ?)", in.Name, in.Description, in.Price)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	nRow, err := result.RowsAffected()
+	//fmt.Println(nRow)
+	//t := strconv.Itoa(int(nRow))
+	return &pb.CreateCosmeticResponse{Message: "Completed creating data "}, nil
+}
+
 func (s *server) ListCosmetics(ctx context.Context, in *pb.ListCosmeticsRequest) (*pb.ListCosmeticsResponse, error) {
 	appConfig, _ := godotenv.Read()
 	// 이거 찾아보기
