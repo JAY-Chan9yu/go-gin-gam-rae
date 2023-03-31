@@ -85,6 +85,46 @@ type Cosmetic struct {
 	price       int
 }
 
+func (s *server) UpdateCosmetic(ctx context.Context, in *pb.UpdateCosmeticRequest) (*pb.UpdateCosmeticReply, error) {
+	appConfig, _ := godotenv.Read()
+
+	db, err := sql.Open(
+		"mysql",
+		fmt.Sprintf("%s:%s@%s(%s:%s)/%s",
+			appConfig["MYSQL_USER"],
+			appConfig["MYSQL_PASSWORD"],
+			appConfig["MYSQL_PROTOCOL"],
+			appConfig["MYSQL_HOST"],
+			appConfig["MYSQL_PORT"],
+			appConfig["MYSQL_DBNAME"],
+		),
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer db.Close()
+
+	stmt, err := db.Prepare("UPDATE Cosmetic SET name=?, description=?, price=? WHERE id=?")
+	if err != nil {
+		log.Fatalf("failed to prepare statement: %v", err)
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(in.Name, in.Description, in.Price, in.Uuid)
+	if err != nil {
+		log.Fatalf("failed to execute statement: %v", err)
+	}
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	nRow, err := result.RowsAffected()
+	fmt.Println(nRow)
+	return &pb.UpdateCosmeticReply{Uuid: in.Uuid, Name: in.Name, Description: in.Description, Price: in.Price}, nil
+}
+
 func (s *server) DeleteCosmetic(ctx context.Context, in *pb.DeleteCosmeticRequest) (*pb.DeleteCosmeticReply, error) {
 	appConfig, _ := godotenv.Read()
 
