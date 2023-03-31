@@ -13,6 +13,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strconv"
 )
 
 type Config struct {
@@ -113,7 +114,8 @@ func (s *server) DeleteCosmetic(ctx context.Context, in *pb.DeleteCosmeticReques
 	}
 	nRow, err := result.RowsAffected()
 	fmt.Println(nRow)
-	return &pb.DeleteCosmeticReply{Message: "delete count: "}, nil
+	t := strconv.Itoa(int(nRow))
+	return &pb.DeleteCosmeticReply{Message: "delete count: " + t}, nil
 }
 
 func main() {
