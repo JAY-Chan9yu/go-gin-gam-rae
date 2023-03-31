@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Greeter_SayHello_FullMethodName       = "/helloworld.Greeter/SayHello"
 	Greeter_DeleteCosmetic_FullMethodName = "/helloworld.Greeter/deleteCosmetic"
+	Greeter_UpdateCosmetic_FullMethodName = "/helloworld.Greeter/updateCosmetic"
 	Greeter_SayHelloAgain_FullMethodName  = "/helloworld.Greeter/SayHelloAgain"
 	Greeter_ListCosmetics_FullMethodName  = "/helloworld.Greeter/ListCosmetics"
 )
@@ -32,6 +33,7 @@ type GreeterClient interface {
 	// Sends a greeting
 	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
 	DeleteCosmetic(ctx context.Context, in *DeleteCosmeticRequest, opts ...grpc.CallOption) (*DeleteCosmeticReply, error)
+	UpdateCosmetic(ctx context.Context, in *UpdateCosmeticRequest, opts ...grpc.CallOption) (*UpdateCosmeticReply, error)
 	// Sends another greeting
 	SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
 	ListCosmetics(ctx context.Context, in *ListCosmeticsRequest, opts ...grpc.CallOption) (*ListCosmeticsResponse, error)
@@ -63,6 +65,15 @@ func (c *greeterClient) DeleteCosmetic(ctx context.Context, in *DeleteCosmeticRe
 	return out, nil
 }
 
+func (c *greeterClient) UpdateCosmetic(ctx context.Context, in *UpdateCosmeticRequest, opts ...grpc.CallOption) (*UpdateCosmeticReply, error) {
+	out := new(UpdateCosmeticReply)
+	err := c.cc.Invoke(ctx, Greeter_UpdateCosmetic_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *greeterClient) SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error) {
 	out := new(HelloReply)
 	err := c.cc.Invoke(ctx, Greeter_SayHelloAgain_FullMethodName, in, out, opts...)
@@ -88,6 +99,7 @@ type GreeterServer interface {
 	// Sends a greeting
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
 	DeleteCosmetic(context.Context, *DeleteCosmeticRequest) (*DeleteCosmeticReply, error)
+	UpdateCosmetic(context.Context, *UpdateCosmeticRequest) (*UpdateCosmeticReply, error)
 	// Sends another greeting
 	SayHelloAgain(context.Context, *HelloRequest) (*HelloReply, error)
 	ListCosmetics(context.Context, *ListCosmeticsRequest) (*ListCosmeticsResponse, error)
@@ -103,6 +115,9 @@ func (UnimplementedGreeterServer) SayHello(context.Context, *HelloRequest) (*Hel
 }
 func (UnimplementedGreeterServer) DeleteCosmetic(context.Context, *DeleteCosmeticRequest) (*DeleteCosmeticReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCosmetic not implemented")
+}
+func (UnimplementedGreeterServer) UpdateCosmetic(context.Context, *UpdateCosmeticRequest) (*UpdateCosmeticReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateCosmetic not implemented")
 }
 func (UnimplementedGreeterServer) SayHelloAgain(context.Context, *HelloRequest) (*HelloReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SayHelloAgain not implemented")
@@ -159,6 +174,24 @@ func _Greeter_DeleteCosmetic_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_UpdateCosmetic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateCosmeticRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).UpdateCosmetic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_UpdateCosmetic_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).UpdateCosmetic(ctx, req.(*UpdateCosmeticRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Greeter_SayHelloAgain_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HelloRequest)
 	if err := dec(in); err != nil {
@@ -209,6 +242,10 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "deleteCosmetic",
 			Handler:    _Greeter_DeleteCosmetic_Handler,
+		},
+		{
+			MethodName: "updateCosmetic",
+			Handler:    _Greeter_UpdateCosmetic_Handler,
 		},
 		{
 			MethodName: "SayHelloAgain",

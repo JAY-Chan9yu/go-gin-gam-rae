@@ -24,6 +24,12 @@ service Greeter {
       body: "*"
     };
   };
+  rpc updateCosmetic (updateCosmeticRequest) returns (updateCosmeticReply) {
+    option (google.api.http) = {
+      put: "/cosmetic"
+      body: "*"
+    };
+  };
   // Sends another greeting
   rpc SayHelloAgain (HelloRequest) returns (HelloReply);
   rpc ListCosmetics (ListCosmeticsRequest) returns (ListCosmeticsResponse);
@@ -59,4 +65,18 @@ message deleteCosmeticRequest {
 
 message deleteCosmeticReply {
   string message = 1;
+}
+
+message updateCosmeticRequest {
+  string uuid = 1;
+  string name = 2;
+  string description = 3;
+  int32 price = 4;
+}
+
+message updateCosmeticReply {
+  string uuid = 1;
+  string name = 2;
+  string description = 3;
+  int32 price = 4;
 }
