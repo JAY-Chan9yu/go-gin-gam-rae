@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Greeter_SayHello_FullMethodName      = "/helloworld.Greeter/SayHello"
-	Greeter_SayHelloAgain_FullMethodName = "/helloworld.Greeter/SayHelloAgain"
+	Greeter_SayHello_FullMethodName       = "/helloworld.Greeter/SayHello"
+	Greeter_DeleteCosmetic_FullMethodName = "/helloworld.Greeter/deleteCosmetic"
+	Greeter_SayHelloAgain_FullMethodName  = "/helloworld.Greeter/SayHelloAgain"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -29,6 +30,7 @@ const (
 type GreeterClient interface {
 	// Sends a greeting
 	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+	DeleteCosmetic(ctx context.Context, in *DeleteCosmeticRequest, opts ...grpc.CallOption) (*DeleteCosmeticReply, error)
 	// Sends another greeting
 	SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
 }
@@ -50,6 +52,15 @@ func (c *greeterClient) SayHello(ctx context.Context, in *HelloRequest, opts ...
 	return out, nil
 }
 
+func (c *greeterClient) DeleteCosmetic(ctx context.Context, in *DeleteCosmeticRequest, opts ...grpc.CallOption) (*DeleteCosmeticReply, error) {
+	out := new(DeleteCosmeticReply)
+	err := c.cc.Invoke(ctx, Greeter_DeleteCosmetic_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *greeterClient) SayHelloAgain(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error) {
 	out := new(HelloReply)
 	err := c.cc.Invoke(ctx, Greeter_SayHelloAgain_FullMethodName, in, out, opts...)
@@ -65,6 +76,7 @@ func (c *greeterClient) SayHelloAgain(ctx context.Context, in *HelloRequest, opt
 type GreeterServer interface {
 	// Sends a greeting
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
+	DeleteCosmetic(context.Context, *DeleteCosmeticRequest) (*DeleteCosmeticReply, error)
 	// Sends another greeting
 	SayHelloAgain(context.Context, *HelloRequest) (*HelloReply, error)
 	mustEmbedUnimplementedGreeterServer()
@@ -76,6 +88,9 @@ type UnimplementedGreeterServer struct {
 
 func (UnimplementedGreeterServer) SayHello(context.Context, *HelloRequest) (*HelloReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SayHello not implemented")
+}
+func (UnimplementedGreeterServer) DeleteCosmetic(context.Context, *DeleteCosmeticRequest) (*DeleteCosmeticReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteCosmetic not implemented")
 }
 func (UnimplementedGreeterServer) SayHelloAgain(context.Context, *HelloRequest) (*HelloReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SayHelloAgain not implemented")
@@ -111,6 +126,24 @@ func _Greeter_SayHello_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_DeleteCosmetic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCosmeticRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).DeleteCosmetic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_DeleteCosmetic_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).DeleteCosmetic(ctx, req.(*DeleteCosmeticRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Greeter_SayHelloAgain_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HelloRequest)
 	if err := dec(in); err != nil {
@@ -139,6 +172,10 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SayHello",
 			Handler:    _Greeter_SayHello_Handler,
+		},
+		{
+			MethodName: "deleteCosmetic",
+			Handler:    _Greeter_DeleteCosmetic_Handler,
 		},
 		{
 			MethodName: "SayHelloAgain",
