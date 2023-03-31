@@ -19,3 +19,18 @@ services:
     command: [ "sh", "-c", "protoc --go_out=. --go-grpc_out=. proto/service.proto" ]
     volumes:
       - .:/app
+
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=db
+    volumes:
+      - "./init:/docker-entrypoint-initdb.d"
+      - "./db/data:/var/lib/mysql"
+      - "./db/data2:/data"
