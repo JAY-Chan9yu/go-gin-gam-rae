@@ -4,7 +4,7 @@ services:
   mysql:
     image: mysql:8.0
     platform: linux/amd64
-    container_name: mysql
+    container_name: grpc-mysql
     ports:
       - "3306:3306"
     restart: always
@@ -12,6 +12,29 @@ services:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=db
     volumes:
-      - "./init:/docker-entrypoint-initdb.d"
-      - "./db/data:/var/lib/mysql"
-      - "./db/data2:/data"
+      - "./mysql/init:/docker-entrypoint-initdb.d"
+      - "./mysql/db/data:/var/lib/mysql"
+      - "./mysql/db/data2:/data"
+      - "./mysql/my.cnf:/etc/mysql/my.cnf"
+    command:
+      - --character-set-server=utf8
+      - --collation-server=utf8_general_ci
+
+#  go-grpc-server:
+#    container_name: "go-grpc-server"
+#    image: golang120-go-jin-gam-rae:1.0.0
+#    build: .
+#    ports:
+#      - "9000:9000"
+#    depends_on:
+#      - protoc
+#    volumes:
+#      - .:/app
+#    #    command: go run main.go
+#    command: air
+#
+#    protoc:
+#      build: .
+#      command: [ "sh", "-c", "protoc --go_out=. --go-grpc_out=. proto/service.proto" ]
+#      volumes:
+#        - .:/app
