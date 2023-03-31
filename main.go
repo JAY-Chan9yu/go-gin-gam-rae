@@ -4,16 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	pb "github.com/JAY-Chan9yu/go-gin-gam-rae/proto"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
 	"log"
 	"net"
 	"net/http"
-
-	pb "github.com/JAY-Chan9yu/go-gin-gam-rae/proto"
-	"google.golang.org/grpc"
 )
 
 type Config struct {
@@ -77,6 +76,44 @@ type server struct{ pb.UnimplementedGreeterServer }
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	log.Printf("Received: %v", in.GetName())
 	return &pb.HelloReply{Message: "Hello " + in.GetName()}, nil
+}
+
+type Cosmetic struct {
+	id          string
+	name        string
+	description string
+	price       int
+}
+
+func (s *server) DeleteCosmetic(ctx context.Context, in *pb.DeleteCosmeticRequest) (*pb.DeleteCosmeticReply, error) {
+	appConfig, _ := godotenv.Read()
+
+	db, err := sql.Open(
+		"mysql",
+		fmt.Sprintf("%s:%s@%s(%s:%s)/%s",
+			appConfig["MYSQL_USER"],
+			appConfig["MYSQL_PASSWORD"],
+			appConfig["MYSQL_PROTOCOL"],
+			appConfig["MYSQL_HOST"],
+			appConfig["MYSQL_PORT"],
+			appConfig["MYSQL_DBNAME"],
+		),
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer db.Close()
+
+	result, err := db.Exec("delete FROM Cosmetic WHERE id = " + "'" + in.Uuid + "'")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	nRow, err := result.RowsAffected()
+	fmt.Println(nRow)
+	return &pb.DeleteCosmeticReply{Message: "delete count: "}, nil
 }
 
 func main() {

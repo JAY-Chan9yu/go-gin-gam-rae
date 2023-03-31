@@ -18,6 +18,12 @@ service Greeter {
       body: "*"
     };
   };
+  rpc deleteCosmetic (deleteCosmeticRequest) returns (deleteCosmeticReply) {
+    option (google.api.http) = {
+      delete: "/cosmetic"
+      body: "*"
+    };
+  };
   // Sends another greeting
   rpc SayHelloAgain (HelloRequest) returns (HelloReply);
 }
@@ -29,5 +35,13 @@ message HelloRequest {
 
 // The response message containing the greetings
 message HelloReply {
+  string message = 1;
+}
+
+message deleteCosmeticRequest {
+  string uuid = 1;
+}
+
+message deleteCosmeticReply {
   string message = 1;
 }
