@@ -78,13 +78,6 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	return &pb.HelloReply{Message: "Hello " + in.GetName()}, nil
 }
 
-type Cosmetic struct {
-	id          string
-	name        string
-	description string
-	price       int
-}
-
 func (s *server) DeleteCosmetic(ctx context.Context, in *pb.DeleteCosmeticRequest) (*pb.DeleteCosmeticReply, error) {
 	appConfig, _ := godotenv.Read()
 	db, err := sql.Open(
