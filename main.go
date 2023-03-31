@@ -6,15 +6,14 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/joho/godotenv"
 	"log"
 	"net"
 	"net/http"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-
 	pb "github.com/JAY-Chan9yu/go-gin-gam-rae/proto"
+	"google.golang.org/grpc"
 )
 
 type Config struct {
@@ -89,10 +88,40 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterGreeterServer(s, &server{})
 
-	reflection.Register(s)
+	//reflection.Register(s)
+	//
+	//log.Printf("server listening at %v", lis.Addr())
+	//if err := s.Serve(lis); err != nil {
+	//	log.Fatalf("failed to serve: %s", err)
+	//}
+	log.Println("Serving gRPC on 0.0.0.0:9000")
+	go func() {
+		log.Fatalln(s.Serve(lis))
+	}()
 
-	log.Printf("server listening at %v", lis.Addr())
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %s", err)
+	conn, err := grpc.DialContext(
+		context.Background(),
+		"127.0.0.1:9000",
+		grpc.WithBlock(),
+		grpc.WithInsecure(),
+	)
+
+	if err != nil {
+		log.Fatalln("Failed to dial server:", err)
 	}
+
+	gwmux := runtime.NewServeMux()
+
+	err = pb.RegisterGreeterHandler(context.Background(), gwmux, conn)
+	if err != nil {
+		log.Fatalln("Failed to register gateway:", err)
+	}
+
+	gwServer := &http.Server{
+		Addr:    ":8090",
+		Handler: gwmux,
+	}
+
+	log.Println("Serving gRPC-Gateway on http://127.0.0.1:8090")
+	log.Fatalln(gwServer.ListenAndServe())
 }

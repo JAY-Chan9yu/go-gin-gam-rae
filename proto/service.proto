@@ -7,15 +7,24 @@ option java_outer_classname = "HelloWorldProto";
 
 package helloworld;
 
+import "proto/google/api/annotations.proto";
+
 // The greeting service definition.
 service Greeter {
   // Sends a greeting
-  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc SayHello (HelloRequest) returns (HelloReply) {
+    option (google.api.http) = {
+      post: "/echo"
+      body: "*"
+    };
+  };
+  // Sends another greeting
+  rpc SayHelloAgain (HelloRequest) returns (HelloReply);
 }
 
 // The request message containing the user's name.
 message HelloRequest {
-  string name = 1;
+  string name = 1; // 고유번호가 할당되고 이 번호가 바뀌면 업데이트 해야한다.
 }
 
 // The response message containing the greetings
