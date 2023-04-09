@@ -19,7 +19,7 @@
 `env`파일을 복사하고 docker-compose 내용에 맞게 수정해줍니다.
 
 ```shell
-cp .env_sample .env_test
+cp .env_sample .env
 ```
 
 `docker-compose`로 `MySQL server`, `python grpc server`, `golang grpc server`를 띄웁니다. <br>
