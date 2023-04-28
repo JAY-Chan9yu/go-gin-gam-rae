@@ -18,3 +18,5 @@
 .env
 tmp/
 db
+db2
+*.pyc

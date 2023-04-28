@@ -1,9 +1,10 @@
 import grpc
 from fastapi import FastAPI
-from google.protobuf.json_format import MessageToDict, MessageToJson
+from google.protobuf.json_format import MessageToDict
+from sqlalchemy import text
 
 from proto.cosmetic import cosmetic_pb2, cosmetic_pb2_grpc
-
+from database import BaseRepository
 
 def get_grpc_cosmetics():
     with grpc.insecure_channel("go-grpc-server:9000") as channel:
@@ -21,3 +22,18 @@ app = FastAPI()
 @app.get("/internal/cosmetics")
 def get_cosmetics():
     return get_grpc_cosmetics()
+
+
+@app.get("/")
+def get_test():
+    db_client1 = BaseRepository.get_connection_db1()
+    sql = text('select * from Cosmetic')
+    results = db_client1.execute(sql)
+    results = [row[0] for row in results]
+
+    db_client2 = BaseRepository.get_connection_db2()
+    sql = text('select * from User')
+    results2 = db_client1.execute(sql)
+    results2 = [row[1] for row in results]
+
+    return results
